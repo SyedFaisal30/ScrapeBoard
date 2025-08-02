@@ -7,7 +7,6 @@ const Dashboard = ({ user }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Redirect if not logged in
     if (!user) {
       navigate("/login");
       return;
@@ -20,7 +19,6 @@ const Dashboard = ({ user }) => {
     return () => clearTimeout(timer);
   }, [user, navigate]);
 
-  // Optional: render null if redirecting
   if (!user) return null;
 
   return (
@@ -32,12 +30,21 @@ const Dashboard = ({ user }) => {
         </div>
       ) : (
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-2">Hi, {user.name} 👋</h2>
-          <p className="text-gray-600 text-lg">
+          <div className="flex flex-col items-center gap-4 mb-6">
+            <img
+              src={user.picture}
+              alt="User Profile"
+              className="w-24 h-24 rounded-full shadow-md"
+            />
+            <h2 className="text-3xl font-bold">Hi, {user.name} 👋</h2>
+            <p className="text-gray-500">{user.email}</p>
+          </div>
+
+          <p className="text-gray-600 text-lg mb-8">
             Welcome to your personalized dashboard. Your data tools and insights will appear here soon.
           </p>
 
-          <div className="mt-10 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <p className="text-gray-500">
               📊 Dashboard features (fetch, analyze, and display data) coming soon.
             </p>
