@@ -1,5 +1,6 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
+import Cookies from 'js-cookie';
 import logo from '../assets/logo.png';
 
 const Login = ({ onLogin }) => {
@@ -7,8 +8,8 @@ const Login = ({ onLogin }) => {
     const token = credentialResponse.credential;
     const decoded = jwtDecode(token);
 
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(decoded));
+    Cookies.set('token', token, { expires: 1 });
+    Cookies.set('user', JSON.stringify(decoded), { expires: 1 });
 
     onLogin(decoded);
   };
@@ -23,25 +24,30 @@ const Login = ({ onLogin }) => {
       <div className="flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-5xl">
         
         <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Welcome to <span className="text-blue-600">ScrapeBoard</span></h1>
-          <p className="text-gray-500 mb-8">Securely log in to start scraping and exploring data in one place.</p>
-          
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            Welcome to <span className="text-blue-600">ScrapeBoard</span>
+          </h1>
+          <p className="text-gray-500 mb-8">
+            Securely log in to start scraping and exploring data in one place.
+          </p>
+
           <div className="flex items-center justify-center mb-6">
             <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
           </div>
 
           <p className="text-xs text-gray-400 mt-6 text-center">
-            By continuing, you agree to our <span className="text-blue-600 underline cursor-pointer">Terms</span> and <span className="text-blue-600 underline cursor-pointer">Privacy Policy</span>.
+            By continuing, you agree to our{' '}
+            <span className="text-blue-600 underline cursor-pointer">Terms</span> and{' '}
+            <span className="text-blue-600 underline cursor-pointer">Privacy Policy</span>.
           </p>
         </div>
 
-        {/* RIGHT: Visual + Why Login */}
         <div className="hidden md:flex w-1/2 bg-blue-600 text-white items-center justify-center p-10 relative">
           <div className="z-10 text-center">
-            <img 
+            <img
               src={logo}
-              alt="scraping illustration" 
-              className="w-64 mx-auto mb-6 rounded-lg shadow-lg" 
+              alt="scraping illustration"
+              className="w-64 mx-auto mb-6 rounded-lg shadow-lg"
             />
             <h2 className="text-2xl font-semibold mb-2">Why Sign In?</h2>
             <p className="text-white/90 text-sm">
@@ -49,10 +55,8 @@ const Login = ({ onLogin }) => {
               ScrapeBoard keeps your data safe and fresh — all in one place.
             </p>
           </div>
-
           <div className="absolute top-0 left-0 w-full h-full bg-blue-900 opacity-10"></div>
         </div>
-
       </div>
     </div>
   );

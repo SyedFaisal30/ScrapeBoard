@@ -2,13 +2,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { LayoutDashboard, LogIn, LogOut } from "lucide-react";
 import logo from "../assets/logo.png";
 
-const Header = ({ user }) => {
+const Header = ({ user, onLogout }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.clear();
+    onLogout();
     navigate("/");
-    window.location.reload();   
   };
 
   return (
@@ -21,18 +20,12 @@ const Header = ({ user }) => {
       </Link>
 
       <nav className="flex items-center gap-6 text-gray-700 font-medium">
-        <Link
-          to="/dashboard"
-          className="hover:text-blue-600 flex items-center gap-1"
-        >
+        <Link to="/dashboard" className="hover:text-blue-600 flex items-center gap-1">
           <LayoutDashboard size={18} /> Dashboard
         </Link>
 
         {!user ? (
-          <Link
-            to="/login"
-            className="hover:text-blue-600 flex items-center gap-1"
-          >
+          <Link to="/login" className="hover:text-blue-600 flex items-center gap-1">
             <LogIn size={18} /> Login
           </Link>
         ) : (
