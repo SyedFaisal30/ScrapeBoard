@@ -10,7 +10,6 @@ const Login = ({ onLogin }) => {
 
     try {
       const decoded = jwtDecode(token);
-      console.log(decoded);
 
       const google_id = decoded.sub;
 
@@ -21,8 +20,6 @@ const Login = ({ onLogin }) => {
       );
 
       const userData = res.data.user;
-      const data = res.data;
-      console.log(data);
 
       Cookies.set("token", token, { expires: 1 });
       Cookies.set("user", JSON.stringify(userData), { expires: 1 });
