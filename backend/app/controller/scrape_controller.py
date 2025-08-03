@@ -25,7 +25,6 @@ async def scrape_website():
             continue
         msid = msid_match.group(1)
 
-        # Construct image URL using MSID
         image_url = f"https://static.toiimg.com/thumb/imgsize-950438,msid-{msid},width-600,resizemode-4/{msid}.jpg"
 
         full_url = (

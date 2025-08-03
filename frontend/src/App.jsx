@@ -10,7 +10,7 @@ import Footer from "./components/Footer";
 
 function App() {
   const [user, setUser] = useState(null);
-  const [checkingAuth, setCheckingAuth] = useState(true); // To delay render
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,7 +40,6 @@ function App() {
     navigate("/");
   };
 
-  // ⏳ While checking auth from cookies
   if (checkingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center">

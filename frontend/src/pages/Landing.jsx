@@ -4,7 +4,6 @@ import { Globe, ShieldCheck, Sparkles } from 'lucide-react';
 const Landing = () => {
   return (
     <section className="text-center py-20 px-6 bg-gradient-to-b from-blue-50 to-white">
-      {/* Title + CTA */}
       <div className="max-w-3xl mx-auto mb-12">
         <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
           Welcome to <span className="text-blue-600">ScrapeBoard</span>
@@ -21,9 +20,7 @@ const Landing = () => {
         </Link>
       </div>
 
-      {/* Features with icons */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-10 text-left">
-        {/* Feature 1 */}
         <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition border border-blue-100">
           <div className="flex items-center gap-4 mb-4">
             <Globe className="text-blue-600 glow-icon" size={32} />
@@ -34,7 +31,6 @@ const Landing = () => {
           </p>
         </div>
 
-        {/* Feature 2 */}
         <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition border border-blue-100">
           <div className="flex items-center gap-4 mb-4">
             <ShieldCheck className="text-blue-600 glow-icon" size={32} />
@@ -45,7 +41,6 @@ const Landing = () => {
           </p>
         </div>
 
-        {/* Feature 3 */}
         <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition border border-blue-100">
           <div className="flex items-center gap-4 mb-4">
             <Sparkles className="text-blue-600 glow-icon" size={32} />

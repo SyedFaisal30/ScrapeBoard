@@ -7,7 +7,6 @@ async def get_user_bookmarks(email: str):
         cursor = bookmarks_collection.find({"email": email})
         documents = await cursor.to_list(length=100)
 
-        # Convert ObjectId to str in each document
         for doc in documents:
             doc["_id"] = str(doc["_id"])
 

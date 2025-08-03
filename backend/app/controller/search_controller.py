@@ -22,11 +22,9 @@ async def scrape_topic_news(topic: str):
             continue
         seen.add(href)
 
-        # Get headline from inner div
         headline_tag = a_tag.select_one("div.VXBf7")
         headline = headline_tag.get_text(strip=True) if headline_tag else "No headline"
 
-        # Extract MSID from the URL
         msid_match = re.search(r"/articleshow/(\d+)\.cms", href)
         if not msid_match:
             continue

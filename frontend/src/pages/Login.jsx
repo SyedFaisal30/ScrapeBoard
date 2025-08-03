@@ -81,7 +81,6 @@ const Login = ({ onLogin }) => {
 
         <div className="hidden md:flex w-1/2 bg-blue-600 text-white items-center justify-center p-10 relative">
           <div className="z-10 w-full flex items-center gap-6">
-            {/* Left: Logo */}
             <img
               src={logo}
               alt="scraping illustration"
@@ -98,7 +97,6 @@ const Login = ({ onLogin }) => {
             </div>
           </div>
 
-          {/* Background overlay */}
           <div className="absolute top-0 left-0 w-full h-full bg-blue-900 opacity-10"></div>
         </div>
       </div>

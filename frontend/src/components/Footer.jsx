@@ -46,7 +46,7 @@ const Footer = () => {
             <Mail size={18} />
           </a>
           <a
-            href="https://x.com/SyedFaisal30" // replace with your actual X username
+            href="https://x.com/SyedFaisal30" 
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-blue-600"
