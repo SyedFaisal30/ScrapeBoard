@@ -1,4 +1,3 @@
-// ... (all your imports stay the same)
 import {
   Loader2,
   Info,
@@ -10,6 +9,11 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useToast } from "../context/ToastContext";
+
+const truncate = (text, max = 30) => {
+  return text.length > max ? text.slice(0, max) + "..." : text;
+};
 
 const Dashboard = ({ user }) => {
   const [loading, setLoading] = useState(true);
@@ -22,6 +26,7 @@ const Dashboard = ({ user }) => {
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
 
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     if (!user) {
@@ -51,6 +56,7 @@ const Dashboard = ({ user }) => {
       setVisibleCount(6);
     } catch (error) {
       console.error("Error fetching scraped data:", error);
+      showToast("error", "Failed to fetch news.");
     } finally {
       setLoading(false);
     }
@@ -66,6 +72,7 @@ const Dashboard = ({ user }) => {
       setBookmarkedUrls(data.map((b) => b.url));
     } catch (err) {
       console.error("Error fetching bookmarks:", err);
+      showToast("error", "Could not load bookmarks.");
     }
   };
 
@@ -73,22 +80,23 @@ const Dashboard = ({ user }) => {
     const isAlreadyBookmarked = bookmarkedUrls.includes(article.url);
 
     if (isAlreadyBookmarked) {
-      // Find the bookmark object using URL
       const bookmark = bookmarks.find((b) => b.url === article.url);
-      if (!bookmark) return alert("Bookmark not found.");
+      if (!bookmark) {
+        showToast("error", "Bookmark not found.");
+        return;
+      }
 
       try {
         await axios.delete(
           `${import.meta.env.VITE_BACKEND_URL}/api/bookmark/${bookmark._id}`
         );
-        alert("Bookmark removed!");
+        showToast("success", "Bookmark removed!");
         fetchBookmarks(user.email);
       } catch (error) {
         console.error("Failed to remove bookmark:", error);
-        alert("Something went wrong while removing bookmark.");
+        showToast("error", "Something went wrong while removing bookmark.");
       }
     } else {
-      // Add bookmark
       try {
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/bookmark/`, {
           email: user.email,
@@ -96,14 +104,14 @@ const Dashboard = ({ user }) => {
           url: article.url,
           img_url: article.image,
         });
-        alert("Article bookmarked!");
-        fetchBookmarks(user.email); // Refresh bookmarks
+        showToast("success", "Article bookmarked!");
+        fetchBookmarks(user.email);
       } catch (error) {
         if (error.response?.status === 409) {
-          alert("You already bookmarked this article.");
+          showToast("info", "You already bookmarked this article.");
         } else {
           console.error("Failed to bookmark article:", error);
-          alert("Something went wrong while bookmarking.");
+          showToast("error", "Something went wrong while bookmarking.");
         }
       }
     }
@@ -136,13 +144,10 @@ const Dashboard = ({ user }) => {
       {loading ? (
         <div className="flex flex-col items-center justify-center mt-20">
           <Loader2 className="animate-spin text-blue-600" size={48} />
-          <p className="mt-4 text-lg font-medium">
-            Loading latest news data...
-          </p>
+          <p className="mt-4 text-lg font-medium">Loading latest news data...</p>
         </div>
       ) : (
         <div className="w-full max-w-[95%] lg:max-w-full mx-auto">
-          {/* User Info */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4 mb-10 text-center sm:text-left">
             <img
               src={user.picture}
@@ -150,14 +155,11 @@ const Dashboard = ({ user }) => {
               className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-lg mx-auto sm:mx-0"
             />
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold">
-                Hi, {user.name} 👋
-              </h2>
+              <h2 className="text-2xl sm:text-3xl font-bold">Hi, {user.name} 👋</h2>
               <p className="text-gray-500 text-sm sm:text-base">{user.email}</p>
             </div>
           </div>
 
-          {/* Search bar */}
           <form
             onSubmit={handleSearch}
             className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-4 mb-8 relative"
@@ -182,11 +184,9 @@ const Dashboard = ({ user }) => {
                 className="text-gray-500 hover:text-blue-600 cursor-pointer"
                 onClick={() => setShowTopicTip(!showTopicTip)}
               />
-
               {showTopicTip && (
                 <div className="absolute top-full right-1 mt-3 p-3 bg-white border border-gray-300 shadow-md rounded-md text-sm w-72 z-10">
-                  Enter a topic like <strong>sports</strong>,{" "}
-                  <strong>tech</strong>, <strong>politics</strong>, etc.
+                  Enter a topic like <strong>sports</strong>, <strong>tech</strong>, <strong>politics</strong>, etc.
                 </div>
               )}
             </div>
@@ -201,8 +201,7 @@ const Dashboard = ({ user }) => {
                 }}
                 className="text-blue-600 cursor-pointer hover:underline"
               >
-                Latest News
-                {searchTopic?.trim() ? ` > ${searchTopic}` : " > All"}
+                Latest News{searchTopic?.trim() ? ` > ${searchTopic}` : " > All"}
               </span>
 
               <button
@@ -213,16 +212,12 @@ const Dashboard = ({ user }) => {
                 {showBookmarksOnly ? (
                   <>
                     <BookmarkCheck size={20} className="text-blue-600" />
-                    <span className="text-sm font-medium text-blue-600">
-                      All News
-                    </span>
+                    <span className="text-sm font-medium text-blue-600">All News</span>
                   </>
                 ) : (
                   <>
                     <Bookmark size={20} className="text-gray-500" />
-                    <span className="text-sm font-medium text-gray-600">
-                      All Bookmarks
-                    </span>
+                    <span className="text-sm font-medium text-gray-600">All Bookmarks</span>
                   </>
                 )}
               </button>
@@ -233,77 +228,66 @@ const Dashboard = ({ user }) => {
             {displayedArticles?.length > 0 ? (
               <>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {displayedArticles
-                    .slice(0, visibleCount)
-                    .map((article, idx) => (
-                      <div
-                        key={idx}
-                        className="bg-white border border-gray-100 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
-                      >
-                        {article.image && (
-                          <img
-                            src={article.image}
-                            alt={`News ${idx}`}
-                            className="w-full h-48 object-cover"
-                          />
-                        )}
-                        <div className="p-4 flex-1 flex flex-col">
-                          <h4 className="text-lg font-semibold mb-2 text-gray-800 line-clamp-2 flex items-start gap-2">
-                            <Newspaper
-                              className="text-blue-500 mt-[2px]"
-                              size={18}
-                            />
-                            {article.headline}
-                          </h4>
+                  {displayedArticles.slice(0, visibleCount).map((article, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white border border-gray-100 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
+                    >
+                      {article.image && (
+                        <img
+                          src={article.image}
+                          alt={`News ${idx}`}
+                          className="w-full h-48 object-cover"
+                        />
+                      )}
+                      <div className="p-4 flex-1 flex flex-col">
+                        <h4 className="text-lg font-semibold mb-2 text-gray-800 flex items-start gap-2">
+                          <Newspaper className="text-blue-500 mt-[2px]" size={18} />
+                          {truncate(article.headline, 100)}
+                        </h4>
 
-                          <div className="mt-auto flex justify-between items-center">
-                            <a
-                              href={article.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-blue-600 font-medium hover:underline"
-                            >
-                              Read full article
-                              <ExternalLink size={16} />
-                            </a>
+                        <div className="mt-auto flex justify-between items-center">
+                          <a
+                            href={article.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-blue-600 font-medium hover:underline"
+                          >
+                            Read full article
+                            <ExternalLink size={16} />
+                          </a>
 
-                            <button
-                              onClick={() => handleBookmark(article)}
-                              title="Bookmark"
-                              className="hover:text-blue-600 transition"
-                            >
-                              {bookmarkedUrls.includes(article.url) ? (
-                                <BookmarkCheck
-                                  size={20}
-                                  className="text-blue-600"
-                                />
-                              ) : (
-                                <Bookmark size={20} className="text-gray-400" />
-                              )}
-                            </button>
-                          </div>
+                          <button
+                            onClick={() => handleBookmark(article)}
+                            title="Bookmark"
+                            className="hover:text-blue-600 transition"
+                          >
+                            {bookmarkedUrls.includes(article.url) ? (
+                              <BookmarkCheck size={20} className="text-blue-600" />
+                            ) : (
+                              <Bookmark size={20} className="text-gray-400" />
+                            )}
+                          </button>
                         </div>
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
 
-                {!showBookmarksOnly &&
-                  visibleCount < displayedArticles.length && (
-                    <div className="mt-10 text-center">
-                      <button
-                        onClick={handleShowMore}
-                        className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md"
-                      >
-                        Show More
-                      </button>
-                    </div>
-                  )}
+                {!showBookmarksOnly && visibleCount < displayedArticles.length && (
+                  <div className="mt-10 text-center">
+                    <button
+                      onClick={handleShowMore}
+                      className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md"
+                    >
+                      Show More
+                    </button>
+                  </div>
+                )}
               </>
             ) : (
               <p className="text-gray-600 text-center">
-                {showBookmarksOnly
-                  ? "No bookmarked articles found."
-                  : "No articles found."}
+                {showBookmarksOnly ? "No bookmarked articles found." : "No articles found."}
               </p>
             )}
           </div>

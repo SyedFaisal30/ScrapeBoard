@@ -13,7 +13,6 @@ function App() {
   const [checkingAuth, setCheckingAuth] = useState(true); // To delay render
   const navigate = useNavigate();
 
-  // Load user from cookie
   useEffect(() => {
     const savedUser = Cookies.get("user");
     if (savedUser) {
@@ -23,15 +22,10 @@ function App() {
         console.error("Invalid user cookie:", error);
       }
     }
-    setCheckingAuth(false); // Auth check done
+    setCheckingAuth(false);
   }, []);
 
-  // Called after Google login success
   const handleLogin = (userData) => {
-    Cookies.set("user", JSON.stringify(userData), { expires: 1 });
-    Cookies.set("email", userData.email, { expires: 1 });
-    Cookies.set("google_id", userData.sub, { expires: 1 });
-
     setUser(userData);
     navigate("/dashboard");
   };
@@ -56,9 +50,10 @@ function App() {
   }
 
   return (
-    <>
-      <Header user={user} onLogout={handleLogout} />
+  <div className="flex flex-col min-h-screen">
+    <Header user={user} onLogout={handleLogout} />
 
+    <div className="flex-grow">
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />
@@ -86,9 +81,10 @@ function App() {
           }
         />
       </Routes>
-      <Footer />
-    </>
-  );
+    </div>
+    <Footer />
+  </div>
+);
 }
 
 export default App;

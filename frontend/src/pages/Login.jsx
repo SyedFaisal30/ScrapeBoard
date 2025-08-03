@@ -6,37 +6,35 @@ import { jwtDecode } from "jwt-decode";
 
 const Login = ({ onLogin }) => {
   const handleSuccess = async (credentialResponse) => {
-    const token = credentialResponse.credential;
+  const token = credentialResponse.credential;
 
-    try {
-      const decoded = jwtDecode(token);
-      console.log(decoded);
-      
-      const google_id = decoded.sub;
+  try {
+    const decoded = jwtDecode(token);
+    console.log(decoded);
+    
+    const google_id = decoded.sub;  
 
-      const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/verify`,
-        null,
-        { params: { token } }
-      );
+    const res = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/verify`,
+      null,
+      { params: { token } }
+    );
 
-      const userData = res.data.user;
+    const userData = res.data.user;
+    const data = res.data;
+    console.log(data);
 
-      const data = res.data;
-      console.log(data);
+    Cookies.set("token", token, { expires: 1 });
+    Cookies.set("user", JSON.stringify(userData), { expires: 1 });
+    Cookies.set("email", userData.email, { expires: 1 });
+    Cookies.set("google_id", String(google_id), { expires: 1 });
 
-      Cookies.set("token", token, { expires: 1 });
-      Cookies.set("user", JSON.stringify(userData), { expires: 1 });
-      Cookies.set("email", userData.email, { expires: 1 });
-      Cookies.set("google_id", google_id, { expires: 1 });
-
-      onLogin(userData);
-    } catch (error) {
-      console.error("Token verification failed:", error);
-      alert("Token verification failed. Please try again.");
-    }
-  };
-
+    onLogin({ ...userData, google_id });
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    alert("Token verification failed. Please try again.");
+  }
+};
   const handleError = () => {
     console.error("Login Failed");
     alert("Login failed. Please try again.");
