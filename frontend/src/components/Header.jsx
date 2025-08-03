@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { LayoutDashboard, LogIn, LogOut } from "lucide-react";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo1.png";
 
 const Header = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -14,8 +14,8 @@ const Header = ({ user, onLogout }) => {
     <header className="flex justify-between items-center p-4 bg-white shadow-md">
       <Link to="/">
         <div className="flex items-center gap-2">
-          <img src={logo} alt="logo" className="w-8 h-8" />
-          <h1 className="text-xl font-bold text-blue-600">ScrapeBoard</h1>
+          <img src={logo} alt="logo" className="w-5 h-6" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-blue-600">ScrapeBoard</h1>
         </div>
       </Link>
 
