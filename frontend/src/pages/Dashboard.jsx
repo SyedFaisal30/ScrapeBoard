@@ -1,5 +1,13 @@
+// ... (all your imports stay the same)
+import {
+  Loader2,
+  Info,
+  ExternalLink,
+  Newspaper,
+  Bookmark,
+  BookmarkCheck,
+} from "lucide-react";
 import { useEffect, useState } from "react";
-import { Loader2, Info, ExternalLink, Newspaper } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -9,6 +17,10 @@ const Dashboard = ({ user }) => {
   const [visibleCount, setVisibleCount] = useState(6);
   const [searchTopic, setSearchTopic] = useState("");
   const [showTopicTip, setShowTopicTip] = useState(false);
+  const [bookmarks, setBookmarks] = useState([]);
+  const [bookmarkedUrls, setBookmarkedUrls] = useState([]);
+  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,7 +28,13 @@ const Dashboard = ({ user }) => {
       navigate("/login");
       return;
     }
-    fetchNews();
+
+    const fetchAll = async () => {
+      await fetchNews();
+      await fetchBookmarks(user.email);
+    };
+
+    fetchAll();
   }, [user, navigate]);
 
   const fetchNews = async (customTopic = "") => {
@@ -38,10 +56,64 @@ const Dashboard = ({ user }) => {
     }
   };
 
+  const fetchBookmarks = async (email) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/bookmark/${email}`
+      );
+      const data = response.data.bookmarks;
+      setBookmarks(data);
+      setBookmarkedUrls(data.map((b) => b.url));
+    } catch (err) {
+      console.error("Error fetching bookmarks:", err);
+    }
+  };
+
+  const handleBookmark = async (article) => {
+    const isAlreadyBookmarked = bookmarkedUrls.includes(article.url);
+
+    if (isAlreadyBookmarked) {
+      // Find the bookmark object using URL
+      const bookmark = bookmarks.find((b) => b.url === article.url);
+      if (!bookmark) return alert("Bookmark not found.");
+
+      try {
+        await axios.delete(
+          `${import.meta.env.VITE_BACKEND_URL}/api/bookmark/${bookmark._id}`
+        );
+        alert("Bookmark removed!");
+        fetchBookmarks(user.email);
+      } catch (error) {
+        console.error("Failed to remove bookmark:", error);
+        alert("Something went wrong while removing bookmark.");
+      }
+    } else {
+      // Add bookmark
+      try {
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/bookmark/`, {
+          email: user.email,
+          headline: article.headline,
+          url: article.url,
+          img_url: article.image,
+        });
+        alert("Article bookmarked!");
+        fetchBookmarks(user.email); // Refresh bookmarks
+      } catch (error) {
+        if (error.response?.status === 409) {
+          alert("You already bookmarked this article.");
+        } else {
+          console.error("Failed to bookmark article:", error);
+          alert("Something went wrong while bookmarking.");
+        }
+      }
+    }
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTopic.trim()) {
       fetchNews(searchTopic.trim());
+      setShowBookmarksOnly(false);
     }
   };
 
@@ -51,8 +123,16 @@ const Dashboard = ({ user }) => {
 
   if (!user) return null;
 
+  const displayedArticles = showBookmarksOnly
+    ? bookmarks.map((b) => ({
+        headline: b.headline,
+        url: b.url,
+        image: b.img_url,
+      }))
+    : scrapedData?.articles;
+
   return (
-    <div className="min-h-[80vh] w-fullpx-4 sm:px-6 py-10 bg-gray-100 text-gray-900">
+    <div className="min-h-[80vh] w-full px-4 sm:px-6 py-10 bg-gray-100 text-gray-900">
       {loading ? (
         <div className="flex flex-col items-center justify-center mt-20">
           <Loader2 className="animate-spin text-blue-600" size={48} />
@@ -77,6 +157,7 @@ const Dashboard = ({ user }) => {
             </div>
           </div>
 
+          {/* Search bar */}
           <form
             onSubmit={handleSearch}
             className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-4 mb-8 relative"
@@ -105,34 +186,54 @@ const Dashboard = ({ user }) => {
               {showTopicTip && (
                 <div className="absolute top-full right-1 mt-3 p-3 bg-white border border-gray-300 shadow-md rounded-md text-sm w-72 z-10">
                   Enter a topic like <strong>sports</strong>,{" "}
-                  <strong>tech</strong>, <strong>politics</strong>, etc. to
-                  fetch specific news.
+                  <strong>tech</strong>, <strong>politics</strong>, etc.
                 </div>
               )}
             </div>
           </form>
 
           <div className="mb-6 text-center sm:text-left">
-            <h3 className="text-gray-800 text-lg sm:text-xl font-semibold">
+            <h3 className="text-gray-800 text-lg sm:text-xl font-semibold flex justify-between items-center">
               <span
-                onClick={() => fetchNews("")}
+                onClick={() => {
+                  fetchNews("");
+                  setShowBookmarksOnly(false);
+                }}
                 className="text-blue-600 cursor-pointer hover:underline"
               >
                 Latest News
+                {searchTopic?.trim() ? ` > ${searchTopic}` : " > All"}
               </span>
-              {searchTopic?.trim() ? (
-                <span className="text-blue-600"> &gt; {searchTopic}</span>
-              ) : (
-                <span className="text-blue-600"> &gt; All</span>
-              )}
+
+              <button
+                onClick={() => setShowBookmarksOnly(!showBookmarksOnly)}
+                title="Toggle Bookmarks"
+                className="flex items-center gap-1 hover:text-blue-600 transition p-1"
+              >
+                {showBookmarksOnly ? (
+                  <>
+                    <BookmarkCheck size={20} className="text-blue-600" />
+                    <span className="text-sm font-medium text-blue-600">
+                      All News
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Bookmark size={20} className="text-gray-500" />
+                    <span className="text-sm font-medium text-gray-600">
+                      All Bookmarks
+                    </span>
+                  </>
+                )}
+              </button>
             </h3>
           </div>
 
           <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 shadow-xl transition-all">
-            {scrapedData?.articles?.length > 0 ? (
+            {displayedArticles?.length > 0 ? (
               <>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {scrapedData.articles
+                  {displayedArticles
                     .slice(0, visibleCount)
                     .map((article, idx) => (
                       <div
@@ -154,7 +255,8 @@ const Dashboard = ({ user }) => {
                             />
                             {article.headline}
                           </h4>
-                          <div className="mt-auto">
+
+                          <div className="mt-auto flex justify-between items-center">
                             <a
                               href={article.url}
                               target="_blank"
@@ -164,38 +266,45 @@ const Dashboard = ({ user }) => {
                               Read full article
                               <ExternalLink size={16} />
                             </a>
+
+                            <button
+                              onClick={() => handleBookmark(article)}
+                              title="Bookmark"
+                              className="hover:text-blue-600 transition"
+                            >
+                              {bookmarkedUrls.includes(article.url) ? (
+                                <BookmarkCheck
+                                  size={20}
+                                  className="text-blue-600"
+                                />
+                              ) : (
+                                <Bookmark size={20} className="text-gray-400" />
+                              )}
+                            </button>
                           </div>
                         </div>
                       </div>
                     ))}
                 </div>
 
-                {visibleCount < scrapedData.articles.length && (
-                  <div className="mt-10 text-center">
-                    <button
-                      onClick={handleShowMore}
-                      className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md"
-                    >
-                      Show More
-                    </button>
-                  </div>
-                )}
+                {!showBookmarksOnly &&
+                  visibleCount < displayedArticles.length && (
+                    <div className="mt-10 text-center">
+                      <button
+                        onClick={handleShowMore}
+                        className="px-6 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-md"
+                      >
+                        Show More
+                      </button>
+                    </div>
+                  )}
               </>
             ) : (
-              <p className="text-gray-600 text-center">No articles found.</p>
-            )}
-
-            {scrapedData?.url && (
-              <div className="mt-8 text-center">
-                <a
-                  href={scrapedData.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline text-sm"
-                >
-                  Visit Times of India Website →
-                </a>
-              </div>
+              <p className="text-gray-600 text-center">
+                {showBookmarksOnly
+                  ? "No bookmarked articles found."
+                  : "No articles found."}
+              </p>
             )}
           </div>
         </div>

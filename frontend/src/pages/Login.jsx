@@ -2,32 +2,40 @@ import { GoogleLogin } from "@react-oauth/google";
 import Cookies from "js-cookie";
 import logo from "../assets/logo.png";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode"; 
+
 const Login = ({ onLogin }) => {
   const handleSuccess = async (credentialResponse) => {
-  const token = credentialResponse.credential;
+    const token = credentialResponse.credential;
 
-  try {
-    const res = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/verify`,
-      null,
-      {
-        params: { token },
-      }
-    );
+    try {
+      const decoded = jwtDecode(token);
+      console.log(decoded);
+      
+      const google_id = decoded.sub;
 
-    const userData = res.data.user;
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/verify`,
+        null,
+        { params: { token } }
+      );
 
-    Cookies.set("token", token, { expires: 1 });
-    Cookies.set("user", JSON.stringify(userData), { expires: 1 });
-    Cookies.set("email", userData.email, { expires: 1 });
+      const userData = res.data.user;
 
-    onLogin(userData);
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    alert("Token verification failed. Please try again.");
-  }
-};
+      const data = res.data;
+      console.log(data);
 
+      Cookies.set("token", token, { expires: 1 });
+      Cookies.set("user", JSON.stringify(userData), { expires: 1 });
+      Cookies.set("email", userData.email, { expires: 1 });
+      Cookies.set("google_id", google_id, { expires: 1 });
+
+      onLogin(userData);
+    } catch (error) {
+      console.error("Token verification failed:", error);
+      alert("Token verification failed. Please try again.");
+    }
+  };
 
   const handleError = () => {
     console.error("Login Failed");
@@ -51,14 +59,8 @@ const Login = ({ onLogin }) => {
 
           <p className="text-xs text-gray-400 mt-6 text-center">
             By continuing, you agree to our{" "}
-            <span className="text-blue-600 underline cursor-pointer">
-              Terms
-            </span>{" "}
-            and{" "}
-            <span className="text-blue-600 underline cursor-pointer">
-              Privacy Policy
-            </span>
-            .
+            <span className="text-blue-600 underline cursor-pointer">Terms</span> and{" "}
+            <span className="text-blue-600 underline cursor-pointer">Privacy Policy</span>.
           </p>
         </div>
 
@@ -71,9 +73,8 @@ const Login = ({ onLogin }) => {
             />
             <h2 className="text-2xl font-semibold mb-2">Why Sign In?</h2>
             <p className="text-white/90 text-sm">
-              Personalize your experience, save progress, and unlock live data
-              insights. ScrapeBoard keeps your data safe and fresh — all in one
-              place.
+              Personalize your experience, save progress, and unlock live data insights. 
+              ScrapeBoard keeps your data safe and fresh — all in one place.
             </p>
           </div>
           <div className="absolute top-0 left-0 w-full h-full bg-blue-900 opacity-10"></div>
