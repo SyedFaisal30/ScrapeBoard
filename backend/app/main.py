@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.router import auth_router, scrape_router
+from app.router import auth_router, scrape_router, search_router
 
 app = FastAPI(
     title="ScrapeBoard",
@@ -21,3 +21,4 @@ app.add_middleware(
 
 app.include_router(auth_router.router, prefix="/api")
 app.include_router(scrape_router.router, prefix="/api")
+app.include_router(search_router.router, prefix="/api")
