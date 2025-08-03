@@ -52,7 +52,7 @@ function App() {
   <div className="flex flex-col min-h-screen">
     <Header user={user} onLogout={handleLogout} />
 
-    <div className="flex-grow">
+    <div className="flex-grow w-full">
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login onLogin={handleLogin} />} />

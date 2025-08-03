@@ -13,14 +13,14 @@ const Header = ({ user, onLogout }) => {
   return (
     <header className="flex justify-between items-center p-4 bg-white shadow-md">
       <Link to="/">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <img src={logo} alt="logo" className="w-5 h-6" />
-          <h1 className="text-2xl sm:text-3xl font-bold text-blue-600">ScrapeBoard</h1>
+          <h1 className="text-xl sm:text-3xl font-bold text-blue-600">ScrapeBoard</h1>
         </div>
       </Link>
 
-      <nav className="flex items-center gap-6 text-gray-700 font-medium">
-        <Link to="/dashboard" className="hover:text-blue-600 flex items-center gap-1">
+      <nav className="flex items-center gap-4 sm:gap-6 text-gray-700 font-medium">
+        <Link to="/dashboard" className="hover:text-blue-600 flex items-center ">
           <LayoutDashboard size={18} /> Dashboard
         </Link>
 
@@ -31,7 +31,7 @@ const Header = ({ user, onLogout }) => {
         ) : (
           <button
             onClick={handleLogout}
-            className="hover:text-red-600 flex items-center gap-1 text-red-500 cursor-pointer"
+            className="hover:text-red-600 flex items-center text-red-500 cursor-pointer"
           >
             <LogOut size={18} /> Logout
           </button>
