@@ -1,20 +1,33 @@
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import logo from "../assets/logo.png";
-
+import axios from "axios";
 const Login = ({ onLogin }) => {
-  const handleSuccess = (credentialResponse) => {
-    const token = credentialResponse.credential;
-    const decoded = jwtDecode(token);
+  const handleSuccess = async (credentialResponse) => {
+  const token = credentialResponse.credential;
+
+  try {
+    const res = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/verify`,
+      null,
+      {
+        params: { token },
+      }
+    );
+
+    const userData = res.data.user;
 
     Cookies.set("token", token, { expires: 1 });
-    Cookies.set("user", JSON.stringify(decoded), { expires: 1 });
-    Cookies.set("email", decoded.email, { expires: 1 });
-    Cookies.set("google_id", decoded.sub, { expires: 1 });
+    Cookies.set("user", JSON.stringify(userData), { expires: 1 });
+    Cookies.set("email", userData.email, { expires: 1 });
 
-    onLogin(decoded);
-  };
+    onLogin(userData);
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    alert("Token verification failed. Please try again.");
+  }
+};
+
 
   const handleError = () => {
     console.error("Login Failed");

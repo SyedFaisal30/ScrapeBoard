@@ -49,15 +49,18 @@ const Dashboard = ({ user }) => {
       ) : (
         <div className="w-full max-w-[95%] lg:max-w-[1400px] mx-auto">
           {/* User Info */}
-          <div className="flex flex-col items-center gap-4 mb-10 text-center">
-            <img
-              src={user.picture}
-              alt="User Profile"
-              className="w-24 h-24 rounded-full shadow-lg"
-            />
-            <h2 className="text-3xl font-bold">Hi, {user.name} 👋</h2>
-            <p className="text-gray-500">{user.email}</p>
-          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4 mb-10 text-center sm:text-left">
+  <img
+    src={user.picture}
+    alt="User Profile"
+    className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-lg mx-auto sm:mx-0"
+  />
+  <div>
+    <h2 className="text-2xl sm:text-3xl font-bold">Hi, {user.name} 👋</h2>
+    <p className="text-gray-500 text-sm sm:text-base">{user.email}</p>
+  </div>
+</div>
+
 
           {/* News Section */}
           <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 shadow-xl transition-all">

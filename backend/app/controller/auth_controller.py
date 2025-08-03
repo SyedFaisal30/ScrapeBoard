@@ -12,8 +12,6 @@ async def verify_google_token(token: str):
         response = await client.get(url)
         if response.status_code == 200:
             data = response.json()
-            print("Received aud:", data["aud"])
-            print("Expected aud:", GOOGLE_CLIENT_ID)
 
             if data["aud"] == GOOGLE_CLIENT_ID:
                 return {

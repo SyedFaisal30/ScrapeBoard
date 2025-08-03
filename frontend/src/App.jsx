@@ -68,13 +68,20 @@ function App() {
             user ? (
               <Dashboard user={user} />
             ) : (
-              <p className="text-center mt-10 text-red-500 text-lg">
-                Unauthorized. Please{" "}
-                <a href="/login" className="underline text-blue-600">
-                  login
-                </a>{" "}
-                to access the dashboard.
-              </p>
+              <div className="min-h-screen flex flex-col items-center justify-center bg-red-50 text-center px-4">
+                <h1 className="text-3xl font-bold text-red-600 mb-2">
+                  Unauthorized Access
+                </h1>
+                <p className="text-gray-700 mb-4 text-lg max-w-md">
+                  You must be logged in to view the dashboard.
+                </p>
+                <a
+                  href="/login"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all shadow"
+                >
+                  Go to Login
+                </a>
+              </div>
             )
           }
         />
