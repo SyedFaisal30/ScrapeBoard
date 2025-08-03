@@ -131,7 +131,3 @@ This project is licensed under the MIT License.
 ❤️ Contributing
 Pull requests and stars are welcome!
 If you have suggestions, feel free to open an issue.
-
-yaml
-Copy
-Edit
