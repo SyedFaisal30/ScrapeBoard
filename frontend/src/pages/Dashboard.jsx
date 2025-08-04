@@ -11,11 +11,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useToast } from "../context/ToastContext";
 
+// Utility function to truncate long text
 const truncate = (text, max = 30) => {
   return text.length > max ? text.slice(0, max) + "..." : text;
 };
 
 const Dashboard = ({ user }) => {
+  // ---------------------- State Hooks ----------------------
   const [loading, setLoading] = useState(true);
   const [scrapedData, setScrapedData] = useState(null);
   const [visibleCount, setVisibleCount] = useState(6);
@@ -28,6 +30,7 @@ const Dashboard = ({ user }) => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
+  // ---------------------- Lifecycle: On Mount ----------------------
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -42,6 +45,7 @@ const Dashboard = ({ user }) => {
     fetchAll();
   }, [user, navigate]);
 
+  // ---------------------- Fetch News ----------------------
   const fetchNews = async (customTopic = "") => {
     setLoading(true);
     try {
@@ -62,6 +66,7 @@ const Dashboard = ({ user }) => {
     }
   };
 
+  // ---------------------- Fetch Bookmarks ----------------------
   const fetchBookmarks = async (email) => {
     try {
       const response = await axios.get(
@@ -76,10 +81,12 @@ const Dashboard = ({ user }) => {
     }
   };
 
+  // ---------------------- Bookmark Toggle ----------------------
   const handleBookmark = async (article) => {
     const isAlreadyBookmarked = bookmarkedUrls.includes(article.url);
 
     if (isAlreadyBookmarked) {
+      // Remove bookmark
       const bookmark = bookmarks.find((b) => b.url === article.url);
       if (!bookmark) {
         showToast("error", "Bookmark not found.");
@@ -97,6 +104,7 @@ const Dashboard = ({ user }) => {
         showToast("error", "Something went wrong while removing bookmark.");
       }
     } else {
+      // Add bookmark
       try {
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/bookmark/`, {
           email: user.email,
@@ -117,6 +125,7 @@ const Dashboard = ({ user }) => {
     }
   };
 
+  // ---------------------- Handle Search Submission ----------------------
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchTopic.trim()) {
@@ -125,12 +134,15 @@ const Dashboard = ({ user }) => {
     }
   };
 
+  // ---------------------- Handle Show More Articles ----------------------
   const handleShowMore = () => {
     setVisibleCount((prev) => prev + 6);
   };
 
+  // ---------------------- Redirect Block ----------------------
   if (!user) return null;
 
+  // ---------------------- Filtered Article List ----------------------
   const displayedArticles = showBookmarksOnly
     ? bookmarks.map((b) => ({
         headline: b.headline,
@@ -139,9 +151,11 @@ const Dashboard = ({ user }) => {
       }))
     : scrapedData?.articles;
 
+  // ---------------------- Main Render ----------------------
   return (
     <div className="min-h-[80vh] w-full px-2 sm:px-3 py-10 bg-gray-100 text-gray-900">
       {loading ? (
+        // Loading Spinner
         <div className="flex flex-col items-center justify-center mt-20">
           <Loader2 className="animate-spin text-blue-600" size={48} />
           <p className="mt-4 text-lg font-medium">
@@ -149,7 +163,10 @@ const Dashboard = ({ user }) => {
           </p>
         </div>
       ) : (
+        // Dashboard Content
         <div className="w-full mx-auto">
+
+          {/* User Profile Info */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4 mb-10 text-center sm:text-left">
             <img
               src={user.picture}
@@ -164,6 +181,7 @@ const Dashboard = ({ user }) => {
             </div>
           </div>
 
+          {/* Search Bar */}
           <form
             onSubmit={handleSearch}
             className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-4 mb-8 relative"
@@ -175,13 +193,13 @@ const Dashboard = ({ user }) => {
               placeholder="Search news by topic (e.g. sports, business)..."
               className="w-[50%] sm:w-[30%] px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
             <button
               type="submit"
               className="w-[25%] sm:w-[8%] px-5 py-1 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
             >
               Search
             </button>
+            {/* Tooltip Toggle */}
             <div className="relative w-[5%] sm:w-[5%] flex">
               <Info
                 size={20}
@@ -197,6 +215,7 @@ const Dashboard = ({ user }) => {
             </div>
           </form>
 
+          {/* Section Header */}
           <div className="mb-6 text-center sm:text-left">
             <h3 className="text-gray-800 text-lg sm:text-xl font-semibold flex justify-between items-center">
               <span
@@ -210,6 +229,7 @@ const Dashboard = ({ user }) => {
                 {searchTopic?.trim() ? ` > ${searchTopic}` : " > All"}
               </span>
 
+              {/* Bookmark Toggle Button */}
               <button
                 onClick={() => setShowBookmarksOnly(!showBookmarksOnly)}
                 title="Toggle Bookmarks"
@@ -234,9 +254,11 @@ const Dashboard = ({ user }) => {
             </h3>
           </div>
 
+          {/* News Articles Section */}
           <div className="w-full bg-white rounded-3xl border border-gray-200 p-2 sm:p-4 shadow-xl transition-all">
             {displayedArticles?.length > 0 ? (
               <>
+                {/* Article Grid */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {displayedArticles
                     .slice(0, visibleCount)
@@ -245,22 +267,26 @@ const Dashboard = ({ user }) => {
                         key={idx}
                         className="w-full bg-white border border-gray-100 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col"
                       >
+                        {/* Image */}
                         {article.image && (
                           <img
                             src={article.image}
                             alt={`News ${idx}`}
-                            className="w-full   h-48 object-cover"
+                            className="w-full h-48 object-cover"
                           />
                         )}
+
+                        {/* Content */}
                         <div className="p-4 flex-1 flex flex-col">
-                            <Newspaper
-                              className="text-blue-500 mt-[2px]"
-                              size={18}
-                            />
+                          <Newspaper
+                            className="text-blue-500 mt-[2px]"
+                            size={18}
+                          />
                           <h4 className="text-lg font-semibold mb-2 text-gray-800 flex items-start gap-2">
                             {truncate(article.headline, 100)}
                           </h4>
 
+                          {/* Footer Links */}
                           <div className="mt-auto flex justify-between items-center">
                             <a
                               href={article.url}
@@ -271,7 +297,6 @@ const Dashboard = ({ user }) => {
                               Read full article
                               <ExternalLink size={16} />
                             </a>
-
                             <button
                               onClick={() => handleBookmark(article)}
                               title="Bookmark"
@@ -292,6 +317,7 @@ const Dashboard = ({ user }) => {
                     ))}
                 </div>
 
+                {/* Show More Button */}
                 {!showBookmarksOnly &&
                   visibleCount < displayedArticles.length && (
                     <div className="mt-10 text-center">
@@ -305,6 +331,7 @@ const Dashboard = ({ user }) => {
                   )}
               </>
             ) : (
+              // Empty State Message
               <p className="text-gray-600 text-center">
                 {showBookmarksOnly
                   ? "No bookmarked articles found."
