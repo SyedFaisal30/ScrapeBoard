@@ -153,7 +153,7 @@ const Dashboard = ({ user }) => {
 
   // ---------------------- Main Render ----------------------
   return (
-    <div className="min-h-[80vh] w-full px-2 sm:px-3 py-10 bg-gray-100 text-gray-900">
+    <div className="min-h-[80vh] px-2 sm:px-3 py-10 bg-gray-100 text-gray-900">
       {loading ? (
         // Loading Spinner
         <div className="flex flex-col items-center justify-center mt-20">

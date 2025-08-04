@@ -3,6 +3,9 @@ import Cookies from "js-cookie";
 import logo from "../assets/logo1.png";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import TermsAndConditions from "./TermsAndConditions";
+import PrivacyPolicy from "./PrivacyPolicy";
+import { Link } from "react-router-dom";
 
 const Login = ({ onLogin }) => {
   // ---------------------- Google OAuth Success Handler ----------------------
@@ -48,7 +51,6 @@ const Login = ({ onLogin }) => {
     <div className="h-[90vh] flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
       {/* Card Container */}
       <div className="flex flex-col md:flex-row bg-white rounded-2xl shadow-2xl overflow-hidden w-[95%] sm:w-full max-w-5xl">
-
         {/* Left: Login Section */}
         <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
           {/* Logo + Heading */}
@@ -77,13 +79,16 @@ const Login = ({ onLogin }) => {
           {/* Terms & Privacy */}
           <p className="text-xs text-gray-400 mt-6 text-center">
             By continuing, you agree to our{" "}
-            <span className="text-blue-600 underline cursor-pointer">
+            <Link
+              to="/terms-and-conditions"
+              className="text-blue-600 underline"
+            >
               Terms
-            </span>{" "}
+            </Link>{" "}
             and{" "}
-            <span className="text-blue-600 underline cursor-pointer">
+            <Link to="/privacy-policy" className="text-blue-600 underline">
               Privacy Policy
-            </span>
+            </Link>
             .
           </p>
         </div>
