@@ -3,8 +3,6 @@ import Cookies from "js-cookie";
 import logo from "../assets/logo1.png";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import TermsAndConditions from "./TermsAndConditions";
-import PrivacyPolicy from "./PrivacyPolicy";
 import { Link } from "react-router-dom";
 
 const Login = ({ onLogin }) => {
